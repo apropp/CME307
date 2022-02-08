@@ -1,0 +1,181 @@
+\documentclass[10pt]{article}
+\renewcommand{\baselinestretch}{1.5}
+\usepackage{epsfig}
+\usepackage{subfigure}
+\newcommand\s{{\bf s}}
+\newcommand\x{{\bf x}} 
+\newcommand\y{{\bf y}} 
+\newcommand\p{{\bf p}} 
+\newcommand\e{{\bf e}} 
+\newcommand\bz{{\bf 0}} 
+\renewcommand\a{{\bf a}} 
+\renewcommand\b{{\bf b}} 
+\renewcommand\v{{\bf v}} 
+
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{epsfig}
+\setlength{\textheight}{22cm} \setlength{\textwidth}{6.5in}
+\setlength{\topmargin}{0pt} \setlength{\evensidemargin}{1pt}
+\setlength{\oddsidemargin}{1pt} \setlength{\headsep}{10pt}
+\parskip=2mm
+\parindent=8mm
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+\begin{document}
+\title{CME307/MS\&E311 Suggested Course Project I: Graph-Realization/Sensor-Network-Localization}
+%\author{(You don't need to answer all the questions posted in the project)}
+\maketitle
+
+\section{Introduction}
+Sensor Network Localization (SNL), also closely related to Data Dimensionality Reduction, Phase Retrieval, Molecular Confirmation, Graph Realization, is a major topic in Data Science and Machine Learning. The SNL problem is: Given possible anchors $\a_k\in R^d$, distance information $d_{ij}, \ (i,j)\in N_x$, and $\hat{d}_{kj}, \ (k,j)\in N_a$, find $\x_i\in R^d$ for all $i$ such that
+\begin{equation}\label{snl}
+\begin{array}{lll}
+&                  & \|\x_i-\x_j\|^2 = d_{ij}^2,\ \forall\ (i,j)\in N_x,\ i<j,\\
+&                  & \|\a_k-\x_j\|^2 = \hat{d}_{kj}^2,\ \forall\ (k,j)\in N_a,
+\end{array}
+\end{equation}
+where $(i,j)\in N_x$ ($(k,j)\in N_a$) connects points $\x_i$ and $\x_j$ ($\a_k$ and $\x_j$) with an edge
+whose Euclidean length is $d_{ij}$ ($\hat{d}_{kj}$). $N_x$ and $N_a$ denote the pairs of points whose distances are known.
+
+We established in class an SOCP relaxation for solving (\ref{snl}): Find vectors $\x_i$ to solve
+\begin{equation}\label{snl-socp}
+\begin{array}{lll}
+&\min_{\x_i}        &    \sum_{i}\bz^T\x_i\\
+&\mbox{s.t.} &  \|\x_i-\x_j\|^2\le d_{ij}^2,\ \forall\ (i,j)\in N_x,\ i<j,\\
+&                  & \|\a_k-\x_j\|^2\le \hat{d}_{kj}^2,\ \forall\ (k,j)\in N_a.
+\end{array}
+\end{equation}
+We also established in class an SDP relaxation for solving (\ref{snl}): Find a symmetric matrix $Z\in S^{d+n}$ such that
+\begin{equation}\label{snl-sdp}
+\begin{array}{lll}
+&\min_Z        & \bz\bullet Z\\
+&\mbox{s.t.} & Z_{1:d,1:d}=I,\\
+&             & (\bz;\e_i-\e_j)(\bz;\e_i-\e_j)^T\bullet Z=d_{ij}^2,\ \forall\ i,j\in N_x,\ i<j,\\
+&             & (\a_k;-\e_{j}) (\a_k;-\e_{j})^T\bullet Z = \hat{d}_{kj}^2,\ \forall\ k,j\in N_a,\\
+&             & Z\succeq \bz.
+\end{array}
+\end{equation}
+Note that $Z_{1:d,1:d}=I\in S^d$ can be realized through $d(d+1)/2$ linear equations. For example, if $d=2$, we have
+$Z_{11}=1$, $Z_{22}=1$, and $Z_{12}=0$.
+
+There is a simple nonlinear least squares approach to solve (\ref{snl}):
+\begin{equation}\label{snl-nls}
+\begin{array}{lll}
+&\min_{\x_i}        & \sum_{(i,j)\in N_x}\left(\|\x_i-\x_j\|^2 - d_{ij}^2\right)^2+\sum_{(k,j)\in N_a} \left(\|\a_k-\x_j\|^2 - d_{kj}^2\right)^2
+\end{array}
+\end{equation}
+which is an unconstrained nonlinear minimization problem.
+
+{\bf Question 1:} Run some randomly generated problems in 2D with 3 or more anchors, respectively, and ten sensors to compare the three approaches. You may set up a threshold radius such that the distance between two points is known when the distance is below the threshold.
+
+{\bf Question 2:} Based on your comparison in Question 1, you might find that although the time complexity of the SOCP relaxation is fast, one drawback is that it might not be able to localize sensors that are not in the convex hull of anchors. To solve this problem, we can try an SOCP relaxation first and the steepest descent second strategy. That is, we use the SOCP solution of \eqref{snl-socp} as the initial feasible solution of problem  \eqref{snl-nls}. Then, we apply the steepest descent method for some steps to solve \eqref{snl-nls}. Discuss the performance of this strategy and three previous approaches.
+
+\section{SNL with Noisy Data}
+In practical problems, there is often noise in the distance information. To deal with possible noise, the SDP relaxation
+approach (\ref{snl-sdp}) can be modified to minimize the $L_1$ norm of the errors:
+\begin{equation}\label{snl-sdp-noisequit}
+\begin{array}{lll}
+&\min_{Z,\delta', \delta'', \hat{\delta}', \hat{\delta}''}        & \sum_{(i,j)\in N_x}(\delta'_{ij}+\delta''_{ij})+\sum_{(k,j)\in N_a}(\hat\delta'_{kj}+\hat\delta''_{kj})\\
+&\mbox{s.t.} & Z_{1:d,1:d}=I,\\
+&             & (\bz;\e_i-\e_j)(\bz;\e_i-\e_j)^T\bullet Z+\delta'_{ij}-\delta''_{ij} =d_{ij}^2,\ \forall\ i,j\in N_x,\ i<j,\\
+&             & (\a_k;-\e_{j}) (\a_k;-\e_{j})^T\bullet Z+\hat\delta'_{kj}- \hat\delta''_{kj}= \hat{d}_{kj}^2,\ \forall\ k,j\in N_a,\\
+&             & Z\succeq \bz\\
+&             & \delta', \delta'', \hat{\delta}', \hat{\delta}'' \geq 0.
+\end{array}
+\end{equation}
+
+The SDP solution from the relaxation
+\[\bar Z=\left(\begin{array}{cc} I & \bar X\\
+                                  \bar X^T & \bar Y\end{array}\right)
+\] 
+often may not be rank $d$ so that $\bar X\in R^{d\times n}$ cannot be the best possible localization of the $n$ sensors.
+
+{\bf Question 3:} Generate some random problems with slightly noisy sensor data. Use the SDP solution $\bar X=[\bar\x_1,\ \bar\x_2,\ ....,\ \bar\x_n]$ of (\ref{snl-sdp-noisequit}) as the initial solution for solving model
+(\ref{snl-nls}) by the Steepest Descent Method for a number steps. Are you able to estimate the position of the sensors well? Compare this to using Steepest Descent on (\ref{snl-nls}) with random initialization.
+ 
+{\bf Question 4:} Based on the idea in Question 2, develop an SOCP relaxation first and the steepest descent second method for SNL with Noisy Data. Compare this to the algorithm in Question 3.
+
+
+ \section{Steepest Descent and Projection Method}
+Unfortunately, the current available SDP solvers are still too time consuming for solving large-scale SDP problems. In this part, you are asked
+to implement two  one of the first-order SDP methods described in class to solve the SDP relaxation problem for SNL.
+
+The SNL problem can be casted as
+\[\min\ f(X)=\frac{1}{2}\|{\cal A}X-\b\|^2\ \mbox{s.t.}\ X\succeq \bz,\]
+where
+\[{\cal A}X=\left(\begin{array}{c}
+                               A_1\bullet X\\
+                               ...\\
+                               A_m\bullet X\end{array}\right),\ 
+            {\cal A}^T\y=\sum_{i=1}y_iA_i, \quad\mbox{and}\quad
+\nabla f(X)={\cal A}^T({\cal A}X-\b).                                      
+                               \]
+The SDM projection method described in class is to compute
+\[\hat{X}^{k+1}=X^k-\frac{1}{\beta} \nabla f(X^k),\]
+then project $\hat{X}^{k+1}$ back to the cone. One way for the projection is to use the eigendecomposition $\hat{X}^{k+1}=V\Lambda V^T$, where $V$ are the eigenvectors and $\Lambda$ the eigenvalues, and let
+\[X^{k+1}=\mbox{Proj}_K(\hat{X}^{k+1})=V\max\{\bz,\ \Lambda\}V^T.\]
+The drawback is that the eigendecomposition may be costly in each iteration.
+
+{\bf Question 5:}
+\begin{itemize} 
+\item Try just computing the few largest eigenpairs, say six largest $\lambda_i$ with corresponding eigenvectors $\v_i$ and let:
+\[X^{k+1}=\sum_{i=1}^6\max\{0,\lambda_i\}\v_i\v_i^T.\]
+Typically, a few extreme eigenvalues of a symmetric matrix can be computed more efficiently.
+Here, we assume that the problem has only one anchor at the origin. One can find the true
+position later using two more anchor information.
+
+\item Any possible theoretical analysis of the projection algorithm? 
+\end{itemize}
+
+
+\section{ADMM Method for Sensor Network Localization}
+Another speed-up may be using ADMM approach. One can reformulate the nonlinear least squares model (\ref{snl-nls}) as
+\begin{equation}\label{snl-nls-xy}
+\begin{array}{lll}
+&\min        & \sum_{(i,j)\in N_x}\left[(\x_i-\x_j)^T(\y_i-\y_j) - d_{ij}^2\right]^2+\sum_{(k,j)\in N_a} \left[(\a_k-\x_j)^T(\a_k-\y_j) - d_{kj}^2\right]^2\\
+&\mbox{s.t.}& \x_j-\y_j=\bz,\ \forall j.
+\end{array}
+\end{equation}
+For fixed $\y$'s, the objective function is a linear square function of $\x$'s; and for fixed $\x$'s,  the objective function is a linear square function of $\y$'s.
+
+{\bf Question 6:} 
+\begin{itemize} 
+\item Develop an ADMM method to minimize the objective function by treating $\x$s and $\y$s as two blocks of variables so that each block optimization problem within any ADMM iteration is a convex quadratic minimization problem.
+\end{itemize}
+
+
+\begin{thebibliography}{1}
+\bibitem{biswas1}
+P.~Biswas and Y.~Ye, ``Semidefinite programming for ad hoc wireless sensor
+  network localization,'' in \emph{Proceedings of the third international
+  symposium on Information processing in sensor networks}, ACM Press, 2004, pp. 46--54.
+
+\bibitem{biswas2}
+Pratik Biswas, T-C Liang, K-C Toh, Y.~Ye, T-C Wang, ``Semidefinite programming approaches for sensor network localization with noisy distance measurements,'' IEEE transactions on automation science and engineering, 3(4), 2006, pp. 360-371.
+
+\bibitem{doh}
+L.~Doherty, L.~E. Ghaoui, and K.~S.~J. Pister, ``Convex position estimation in
+  wireless sensor networks.'' in \emph{Proceedings of IEEE Infocom}, Anchorage,
+  Alaska, April 2001, pp. 1655 --1663.
+
+\bibitem{AnthonyThesis}
+A. So.
+\newblock A Semidefinite Programming Approach to the graph realization problem: Theory, Applications and Extensions
+\newblock {\em Phd Thesis, Stanford University}, 2007.
+
+\end{thebibliography}
+\end{document}
+
