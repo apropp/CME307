@@ -16,7 +16,7 @@ degree = 7; %max number of edge distances used per node
 
 % SOCP relaxation
 n_unknowns = n_sensors - n_anchors;
-d = distances(A,n_anchors,n_sensors,radius,noise_factor,degree)
+d = distances(A,n_anchors,n_sensors,radius,noise_factor,degree);
 cvx_begin quiet
     variable x(n_unknowns)
     minimize( 0 )
