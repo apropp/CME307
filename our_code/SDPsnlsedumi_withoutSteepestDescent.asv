@@ -4,8 +4,8 @@ function [Y_opt,X_opt] = SDPsnlsedumi_withoutSteepestDescent(PP,m,n,Radius,nf,de
 %   descent is not applied to the result.
 close all;
     PP=[PP(:,m+1:n) PP(:,1:m)]; % switches around the data so unknowns come first
-    dd = n-m; % number of unknowns
-    Anchor = PP(:,dd+1:n); % anchor locations
+    dd = n-m; % junknowns
+    Anchor = PP(:,dd+1:n); 
 
     e = [ones(dd,1); sum(PP(:,dd+1:n),2)]/sqrt(n);
     C=1.4*nf*vec(e*e'-speye(dd+2,dd+2));
