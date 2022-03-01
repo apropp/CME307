@@ -8,7 +8,7 @@
 % Output: 
 % - e_2: 2-norm error between sensor locations and reconstruction
 % - e_inf: inf-norm error between sensor locations and reconstruction
-function [e_2, e_inf] = evaluate_sensors(A, X, Z, d, n_sensors,...
+function [e_2, e_inf] = evaluate_sensors(A, X, Z, n_sensors,...
     n_anchors, fig_id)
      % If no visualization parameter is specified, simply compute error. 
      if ~exist('fig_id','var')

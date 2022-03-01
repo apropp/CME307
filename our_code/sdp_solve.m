@@ -17,15 +17,19 @@ function Z = sdp_solve(A, D, M, d, n_sensors, n_anchors)
             Z(1:d, 1:d) == eye(d); 
             for i=1:n_sensors
                 for j = i+1:n_sensors
-                    (Id(:, i) - Id(:, j))'*Z(d+1:end, d+1:end)*...
-                        (Id(:, i) - Id(:, j)) ...
-                        == D(n_anchors+i, n_anchors+j)^2;
+                    if M(n_anchors+i, n_anchors+j)
+                        (Id(:, i) - Id(:, j))'*Z(d+1:end, d+1:end)*...
+                            (Id(:, i) - Id(:, j)) ...
+                            == D(n_anchors+i, n_anchors+j)^2;
+                    end
                 end
             end
             for k = 1:n_anchors
                 for j = 1:n_sensors
-                    [A(:, k); -Id(:, j)]'*Z*[A(:, k); -Id(:, j)] ...
-                        == D(k, n_anchors+j)^2;
+                    if M(k, n_anchors+j) 
+                        [A(:, k); -Id(:, j)]'*Z*[A(:, k); -Id(:, j)] ...
+                            == D(k, n_anchors+j)^2;
+                    end
                 end
             end
     cvx_end

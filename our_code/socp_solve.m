@@ -13,11 +13,22 @@ function Z = socp_solve(A, D, M, d, n_sensors, n_anchors)
         variable Z(d, n_sensors)
         minimize( 0 )
             subject to
+            for i = 1:n_sensors 
+                for j = i+1:n_sensors
+                    if M(n_anchors+i, n_anchors+j) > 0
+                        norm(Z(:, i) - Z(:, j)) <= ...
+                            D(n_anchors+i, n_anchors+j);
+                    end
+                end
+            end
+            
             for i=1:n_sensors
-                sum_square_abs(A - Z(:, i)*ones(1, n_anchors)) <= ...
-                    D(n_anchors+i, 1:n_anchors).^2;
-                sum_square_abs(Z - Z(:, i)*ones(1, n_sensors)) <= ...
-                    D(n_anchors+i, n_anchors+1:end).^2;
+                for j=1:n_anchors
+                    if M(n_anchors+i, j) > 0
+                        norm(Z(:, i) - A(:, j)) <= ...
+                            D(n_anchors+i, j);
+                    end
+                end
             end
     cvx_end
 end
