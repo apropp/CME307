@@ -6,7 +6,8 @@
 % - M: matrix indicating which i, j pairs for which distance is known
 % Output:
 % - Z: reconstructed sensor locations
-function Z = nll_solve(A, D, M, d, n_sensors, n_anchors, X)
-    
-end
 
+function Z = nll_obj(A, D, M, d, n_sensors, n_anchors, X)
+    M_x = triu(ones(n_sensors, n_sensors)) - eye(n_sensors); 
+    M
+end

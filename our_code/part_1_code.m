@@ -20,12 +20,12 @@ M = D <= radius;
 %% Q1
 
 % Example usage... 
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
+% Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
+% Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
 
 % TODO - nonlinear least squares 
-% Z_3 = nll_solve(A, D, M, d, n_sensors, n_anchors);
+% Z_3 = nll_solve(A, D, M, d, n_sensors, n_anchors, X);
 
-evaluate_sensors(A, X, Z_1, n_sensors, n_anchors, 1)
-evaluate_sensors(A, X, Z_2, n_sensors, n_anchors, 2)
+% evaluate_sensors(A, X, Z_1, n_sensors, n_anchors, 1)
+% evaluate_sensors(A, X, Z_2, n_sensors, n_anchors, 2)
 
