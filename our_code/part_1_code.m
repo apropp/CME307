@@ -20,13 +20,14 @@ M = D <= radius;
 %% Q1
 
 % Example usage... 
-% Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
+Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
 % Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
 
 % TODO - nonlinear least squares 
 eps = 1e-3;
 max_iters = 200; 
-Z0 = rand(d*n_sensors, 1);
+% Z0 = rand(d*n_sensors, 1);
+Z0 = reshape(Z_1, [d*n_sensors, 1]); 
 [Z_3, objs, errs] = ...
     nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
 
