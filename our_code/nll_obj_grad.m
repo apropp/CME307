@@ -1,5 +1,5 @@
 
-% Helper function to run SOCP relaxation solver on given inputs
+% Helper function to run compute gradient for steepest descent. 
 % Input: 
 % - A: anchor locations 
 % - D: distance matrix 
@@ -9,11 +9,12 @@
 % - n_anchors: number of anchors
 % - Z: predicted sensor locations
 % Output:
-% - obj: objective value 
+% - grad: gradient vector
 function grad = nll_obj_grad(A, D, M, d, n_sensors, n_anchors, Z)
     % Mask for indication of membership in N_x.
     M_s = triu(ones(n_sensors, n_sensors)) - eye(n_sensors); 
     M_s = (M_s & M(n_anchors+1:end, n_anchors+1:end)); 
+    
     % Mask for indication of membership in N_a.
     M_a = M(n_anchors+1:end, 1:n_anchors);
     
@@ -27,7 +28,7 @@ function grad = nll_obj_grad(A, D, M, d, n_sensors, n_anchors, Z)
     
     for i = 1:n_sensors
         for j = 1:n_sensors
-            if M_s(i, j) 
+            if M_s(i, j)
                 W_s(2*i-1, 2*j-1) = Z(2*i-1) - Z(2*j-1);
                 W_s(2*i, 2*j) = Z(2*i) - Z(2*j); 
             else

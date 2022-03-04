@@ -24,8 +24,15 @@ M = D <= radius;
 % Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
 
 % TODO - nonlinear least squares 
-% Z_3 = nll_solve(A, D, M, d, n_sensors, n_anchors, X);
+eps = 1e-3;
+max_iters = 200; 
+Z0 = rand(d*n_sensors, 1);
+[Z_3, objs, errs] = ...
+    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
 
+% Plots 
 % evaluate_sensors(A, X, Z_1, n_sensors, n_anchors, 1)
 % evaluate_sensors(A, X, Z_2, n_sensors, n_anchors, 2)
+evaluate_sensors(A, X, Z_3, n_sensors, n_anchors, 3)
+visualize_descent(objs, errs, max_iters, 4)
 

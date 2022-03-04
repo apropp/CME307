@@ -4,6 +4,9 @@
 % - A: anchor locations 
 % - D: distance matrix 
 % - M: matrix indicating which i, j pairs for which distance is known
+% - d: dimensionality of problem 
+% - n_sensors: number of sensors 
+% - n_anchors: number of anchors
 % Output:
 % - Z: reconstructed sensor locations
 function Z = socp_solve(A, D, M, d, n_sensors, n_anchors)

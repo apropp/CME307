@@ -10,13 +10,21 @@
 % - e_inf: inf-norm error between sensor locations and reconstruction
 function [e_2, e_inf] = evaluate_sensors(A, X, Z, n_sensors,...
     n_anchors, fig_id)
+
+	figure(fig_id);
+    
+    set(0,'defaultTextInterpreter','latex'); %trying to set the default
+    set(0,'defaultAxesFontSize',20)
+    set(groot, 'DefaultLegendInterpreter', 'latex')
+    set(gcf,'color','w');
+    set(groot, 'defaultAxesTickLabelInterpreter','latex'); 
+    
      % If no visualization parameter is specified, simply compute error. 
      if ~exist('fig_id','var')
         e_2 = norm(X-Z); 
         e_inf = norm(X-Z, inf); 
         return
      end
-    figure(fig_id);
     hold on;
     % Plot the anchors
     plot(A(1, :), A(2, :), 'd', 'linewidth', 2); 
@@ -30,6 +38,8 @@ function [e_2, e_inf] = evaluate_sensors(A, X, Z, n_sensors,...
     end
     legend('anchors', 'sensors', 'reconstruction')
     hold off
+    xlabel('$x_1$')
+    ylabel('$x_2$')
     e_2 = norm(X-Z); 
     e_inf = norm(X-Z, inf); 
 end

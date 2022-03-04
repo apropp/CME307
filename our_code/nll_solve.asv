@@ -4,21 +4,23 @@
 % - A: anchor locations 
 % - D: distance matrix 
 % - M: matrix indicating which i, j pairs for which distance is known
+% - d: dimensionality of problem 
+% - n_sensors: number of sensors 
+% - n_anchors: number of anchors
+% - eps: learning rate 
+% - max_iters: maximum number of iterations to use
 % Output:
 % - Z: reconstructed sensor locations
-function Z = nll_solve(A, D, M, d, n_sensors, n_anchors)
-    syms ZZ [2, n_sensors] matrix
-    f = 0; 
-    for i = 1:n_sensors
-        for j = 1:n_anchors
-            f = f + norm(ZZ(:, i) - ZZ(:, j))^2 - D(N_anchors+i, n_anchors+j)^2; 
-        end
+function [Z, objs] = nll_solve(A, D, M, d, n_sensors, n_anchors, X, ...
+    Z0, eps, max_iters)
+    objs = zeros(max_iters, 1); 
+    for k = 1:max_iters
+        Z0 = Z0 - eps*nll_obj_grad(A, D, M, d, n_sensors, n_anchors, Z0); 
+        objs(k) = nll_obj(A, D, M, d, n_sensors, n_anchors, Z0); 
     end
+    Z = zeros(2, n_sensors); 
     for i = 1:n_sensors
-        for j = 1:n_anchors 
-        end
+        Z(:, i) = [ZZ(2*i-1); Z0(2*i)]';
     end
-    
-    
 end
 

@@ -1,5 +1,5 @@
 
-% Helper function to run SOCP relaxation solver on given inputs
+% Helper function to compute objective function for steepest descent.
 % Input: 
 % - A: anchor locations 
 % - D: distance matrix 
@@ -17,5 +17,5 @@ function obj = nll_obj(A, D, M, d, n_sensors, n_anchors, Z)
     % Mask for indication of membership in N_a.
     M_a = M(n_anchors+1:end, 1:n_anchors);
     [E_s, E_a] = element_error(Z, A, D, d, n_sensors, n_anchors); 
-    obj = sum(sum((E_s.^2).*M_s + (E_a.^2).*M_a));
+    obj = sum(sum((E_s.^2).*M_s)) + sum(sum((E_a.^2).*M_a));
 end
