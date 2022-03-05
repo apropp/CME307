@@ -23,7 +23,7 @@ function [E_s, E_a] = element_error(Z, A, D, d, n_sensors, n_anchors)
         end
         for j = 1:n_anchors 
             E_a(i, j) = (Z(2*i-1) - A(2*j-1))^2 + (Z(2*i) - A(2*j))^2 - ...
-                D(i+n_anchors, j); 
+                D(i+n_anchors, j)^2; 
         end
     end
 end

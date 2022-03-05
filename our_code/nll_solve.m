@@ -26,4 +26,3 @@ function [Z, objs, errs] = nll_solve(A, D, M, d, n_sensors, n_anchors, X, ...
         Z(:, i) = [Z0(2*i-1); Z0(2*i)]';
     end
 end
-
