@@ -17,7 +17,7 @@ X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 D = squareform(pdist([A,X]'));
 M = D <= radius; 
 
-%% Q1
+%% Q1 and Q2
 
 % Vanilla SOCP
 Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
