@@ -12,6 +12,15 @@ noise_factor = 0; % noise in distance estimation
 A = rand(2,n_anchors); % n_anchors random points in coordinate plane
 X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 
+% for generating n_sensors random points in the convex hull of the
+% n_anchors
+%Lam1 = rand(n_anchors, n_sensors);
+%X1 = (A(1,:)*Lam1) ./sum(Lam1);
+%Lam2 = rand(n_anchors, n_sensors);
+%X2 = (A(2,:)*Lam2) ./sum(Lam2);
+%X = [X1; X2];
+
+
 % D_{ij} is the distance between point i and point j, where i,j in [1, 5] 
 % is an anchor and i,j in [6, 15] is a sensor. 
 D = squareform(pdist([A,X]'));
