@@ -4,7 +4,7 @@
 % - objs: objective values during descent
 % - max_iters: the number of iterations used
 % - fig_id: which figure to use 
-function visualize_descent(objs, errs, max_iters, fig_id)
+function visualize_descent(objs, errs2, errsinf, max_iters, fig_id)
 
     figure(fig_id)
     
@@ -16,9 +16,11 @@ function visualize_descent(objs, errs, max_iters, fig_id)
     
     plot(1:max_iters, objs, 'Linewidth', 2)
     hold on 
-    plot(1:max_iters, errs, 'Linewidth', 2)
+    plot(1:max_iters, errs2, 'Linewidth', 2)
+    hold on 
+    plot(1:max_iters, errsinf, 'Linewidth', 2)
     hold off
     xlabel('iteration')
-    legend('objective value', '2-norm error')
+    legend('objective value', '2-norm error', '$\infty$-norm error')
 end
 

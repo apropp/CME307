@@ -1,6 +1,6 @@
 clear all; close all; clc; 
 
-%% Initialization
+%% ALSO A DEPRECATED FILE, USE ONLY FOR EXAMPLES
 
 rng(2022); % set seed
 d = 2; 

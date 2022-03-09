@@ -13,6 +13,7 @@ function Z = sdp_solve(A, D, M, d, n_sensors, n_anchors)
     m = d + n_sensors; 
     Id = eye(m - d); 
     % SDP relaxation
+    tic
     cvx_begin quiet
         variable Z(m, m) semidefinite
         minimize( 0 )
@@ -37,5 +38,6 @@ function Z = sdp_solve(A, D, M, d, n_sensors, n_anchors)
             end
     cvx_end
     Z = Z(1:d, d+1:end);
+    toc
 end
 
