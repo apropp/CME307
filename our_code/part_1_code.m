@@ -12,6 +12,21 @@ noise_factor = 0; % noise in distance estimation
 A = rand(2,n_anchors); % n_anchors random points in coordinate plane
 X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 
+% for generating n_anchors on the perimeter
+%A_side = randi(4,n_anchors);
+%A_side = A_side(1,:);
+%for i = 1:n_anchors
+%    if A_side(i) == 1
+%        A(1,i) = 0;
+%    elseif A_side(i) == 2
+%        A(1,i) = 1;
+%    elseif A_side(i) == 3
+%        A(2,i) = 0;
+%    else
+%        A(2,i) = 1;
+%    end
+%end
+       
 % for generating n_sensors random points in the convex hull of the
 % n_anchors
 %Lam1 = rand(n_anchors, n_sensors);
