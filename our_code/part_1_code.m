@@ -12,7 +12,7 @@ noise_factor = 0; % noise in distance estimation
 A = rand(2,n_anchors); % n_anchors random points in coordinate plane
 X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 
-% for generating n_anchors on the perimeter
+% for generating n_anchors on the perimeter of square
 %A_side = randi(4,n_anchors);
 %A_side = A_side(1,:);
 %for i = 1:n_anchors
@@ -26,6 +26,9 @@ X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 %        A(2,i) = 1;
 %    end
 %end
+
+% for generating points on perimeter of circle
+% [cir_data] = circle_points(n_anchors,0.5,0.5,0.5) % radius, x0, y0
        
 % for generating n_sensors random points in the convex hull of the
 % n_anchors
