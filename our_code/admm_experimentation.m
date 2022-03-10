@@ -6,11 +6,11 @@ anchor_numbers = [5, 5, 10];
 sensor_numbers = [10, 20, 20];
 radii = 0.1:0.1:2;
 
-rng(771); % set seed
+rng(355); % set seed
 d = 2; 
 n_anchors = 5; % known locations
 n_sensors = 10; % number of sensors
-radius = 2.5; % range within which distances are known
+radius = 0.5; % range within which distances are known
 noise_factor = 0; % noise in distance estimation
 
 A = rand(2,n_anchors); % n_anchors random points in coordinate plane
@@ -22,7 +22,7 @@ D = squareform(pdist([A,X]'));
 M = D <= radius; 
 
 eps = 10;
-max_iters = 30; 
+max_iters = 250; 
 
 x1 = rand(d, n_sensors); 
 x2 = rand(d, n_sensors); 
