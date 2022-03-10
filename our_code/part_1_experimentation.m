@@ -43,11 +43,61 @@ for i=1:3
     end
 end
 
-%% Vary radii
+%% Table of error, variance for 30 runs
+n_anchors = anchor_numbers(1);
+n_sensors = sensor_numbers(1);
+rng(2022);
 
+nruns = 50;
+E2_norms = zeros(3, nruns); % store errors
+Inf_norms = zeros(3, nruns); % store errors
+
+
+
+for i=1:nruns
+    % Generate random data each time
+    A = rand(2,n_anchors); % n_anchors random points in coordinate plane
+    X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
+    D = squareform(pdist([A,X]'));
+    M = D <= radius;
+    
+    % Run optimization problems
+    Z0 = rand(d*n_sensors, 1);
+    Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
+    Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
+    [Z_3, objs, errs] = ...
+        nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
+    
+    E2_norms(1,i) = norm(X-Z_1);
+    E2_norms(2,i) = norm(X-Z_2); 
+    E2_norms(3,i) = norm(X-Z_3); 
+    Inf_norms(1,i) = norm(X-Z_1, inf); 
+    Inf_norms(2,i) = norm(X-Z_2, inf); 
+    Inf_norms(3,i) = norm(X-Z_3, inf); 
+end
+
+disp("Means of E2 Norms (SOCP, SDP, NLS)")
+mean(E2_norms(1,:))
+mean(E2_norms(2,:))
+mean(E2_norms(3,:))
+disp("Variances of E2 Norms (SOCP, SDP, NLS)")
+var(E2_norms(1,:))
+var(E2_norms(2,:))
+var(E2_norms(3,:))
+disp("Means of Inf Norms (SOCP, SDP, NLS)")
+mean(Inf_norms(1,:))
+mean(Inf_norms(2,:))
+mean(Inf_norms(3,:))
+disp("Variances of Inf Norms (SOCP, SDP, NLS)")
+var(Inf_norms(1,:))
+var(Inf_norms(2,:))
+var(Inf_norms(3,:))
+
+%% Vary radii
 n_anchors = anchor_numbers(1);
 n_sensors = sensor_numbers(1);
 rng(seeds(1));
+
 E2_norms = zeros(3, length(radii)); % store errors
 Inf_norms = zeros(3, length(radii)); % store errors
 
@@ -72,3 +122,20 @@ for i=1:length(radii)
     Inf_norms(2,i) = norm(X-Z_2, inf); 
     Inf_norms(3,i) = norm(X-Z_3, inf); 
 end
+figure
+plot(radii, E2_norms(1,:),'Color',[0 0.4470 0.7410], 'linewidth', 2)
+hold on
+plot(radii, E2_norms(2,:),'Color',[0.8500 0.3250 0.0980], 'linewidth', 2)
+hold on
+plot(radii, E2_norms(3,:),'Color',[0.3010 0.7450 0.9330], 'linewidth', 2)
+legend('SOCP', 'SDP', 'NLS')
+hold off
+
+figure
+plot(radii, Inf_norms(1,:),'Color',[0 0.4470 0.7410], 'linewidth', 2)
+hold on
+plot(radii, Inf_norms(2,:),'Color',[0.8500 0.3250 0.0980], 'linewidth', 2)
+hold on
+plot(radii, Inf_norms(3,:),'Color',[0.3010 0.7450 0.9330], 'linewidth', 2)
+legend('SOCP', 'SDP', 'NLS')
+hold off
