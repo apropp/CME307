@@ -10,8 +10,7 @@
 % - n_anchors: number of anchors
 % Output:
 % - Z: reconstructed sensor locations
-% - errs2: 2-norm error 
-% - errsinfz: inf-norm error
+% - errs: reconstructed sensor locations
 function [Z, objs, errs2, errsinf] = proj_solve(A, D, M, d, n_sensors, n_anchors, ...
     X, max_iters, eps, Z0, p)
     objs = zeros(max_iters, 1); 
@@ -28,8 +27,7 @@ function [Z, objs, errs2, errsinf] = proj_solve(A, D, M, d, n_sensors, n_anchors
         objs(k) = 1/2*(norm(AZ0-b)).^2; 
         errs2(k) = norm(X - Z0(1:d, d+1:end)); 
         errsinf(k) = norm(X - Z0(1:d, d+1:end), inf); 
-        % Convergence criteria
-        if k>1 && (abs(objs(k) - objs(k-1)) < 1e-5)
+        if k>1 && (abs(errs2(k) - errs2(k-1)) < 1e-5)
             break
         end
     end

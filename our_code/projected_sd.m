@@ -12,42 +12,37 @@ noise_factor = 0; % noise in distance estimation
 A = rand(2,n_anchors); % n_anchors random points in coordinate plane
 X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 
-% for generating n_anchors on the perimeter
-%A_side = randi(4,n_anchors);
-%A_side = A_side(1,:);
-%for i = 1:n_anchors
-%    if A_side(i) == 1
-%        A(1,i) = 0;
-%    elseif A_side(i) == 2
-%        A(1,i) = 1;
-%    elseif A_side(i) == 3
-%        A(2,i) = 0;
-%    else
-%        A(2,i) = 1;
-%    end
-%end
-       
-% for generating n_sensors random points in the convex hull of the
-% n_anchors
-%Lam1 = rand(n_anchors, n_sensors);
-%X1 = (A(1,:)*Lam1) ./sum(Lam1);
-%Lam2 = rand(n_anchors, n_sensors);
-%X2 = (A(2,:)*Lam2) ./sum(Lam2);
-%X = [X1; X2];
-
-
 % D_{ij} is the distance between point i and point j, where i,j in [1, 5] 
 % is an anchor and i,j in [6, 15] is a sensor. 
 D = squareform(pdist([A,X]'));
 M = D <= radius; 
 
-%% Everything beyond this point is deprecated-- some function in/outputs
-% changed, so please double check before using this!!!
-%
+%% Projected steepest descents 
+% Set step size; 
+eps = 1e-2;
+max_iters = 3000; 
+
+Z0 = zeros(n_sensors+d);
+rng(771)
+Z = rand(size(X));  
+Z0(1:d, 1:d) = eye(d); 
+Z0(d+1:end, 1:d) = Z'; 
+Z0(1:d, d+1:end) = Z; 
+Z0(d+1:end, d+1:end) = Z'*Z; 
+p = 6; 
+
+[Z0, objs, errs2, errsinf] = proj_solve(A, D, M, d, n_sensors, n_anchors, ...
+    X, max_iters, eps, Z0, p);
+visualize_descent(objs, errs2, errsinf, max_iters, 1)
+evaluate_sensors(A, X, Z0, n_sensors, n_anchors, 2)
+
+
+%% Scratch
+
 % Vanilla SOCP
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
+% Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
 % Vanilla SDP
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
+% Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
 % Vanilla SGD (NLL)
 % eps = 5*1e-3;
 % max_iters = 100; 
@@ -55,14 +50,14 @@ Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
 % [Z_3, objs, errs] = ...
 %     nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
 
-% Q2
+%% Q2
 % eps = 5*1e-3;
 % max_iters = 100; 
 % Z0 = reshape(Z_1, [d*n_sensors, 1]); 
 % [Z_1_ref, objs_3, errs_3] = ...
 %     nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
 
-% Q3 and Q4
+%% Q3 and Q4
 % gamma = .05; 
 % noise= normrnd(0, gamma, size(D)); 
 % D_noisy = D + noise; 
@@ -84,7 +79,7 @@ Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
 %     nll_solve(A, D_noisy, M, d, n_sensors, ...
 %     n_anchors, X, Z0, eps, max_iters);
 
-% Plots 
+%% Plots 
 
 % % Vanilla SOCP 
 % evaluate_sensors(A, X, Z_1, n_sensors, n_anchors, 1)

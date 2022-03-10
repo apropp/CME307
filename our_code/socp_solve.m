@@ -12,6 +12,7 @@
 function Z = socp_solve(A, D, M, d, n_sensors, n_anchors)
     % SOCP relaxation code 
     % TODO - remove constraints for distant nodes
+    tic
     cvx_begin quiet
         variable Z(d, n_sensors)
         minimize( 0 )
@@ -34,5 +35,6 @@ function Z = socp_solve(A, D, M, d, n_sensors, n_anchors)
                 end
             end
     cvx_end
+    toc
 end
 
