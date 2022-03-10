@@ -72,11 +72,18 @@ function [x1, x2, y, objs, errs2, errsinf] = admm_solve(A, D, M, d, ...
         
         % Update y 
         y = y - eps*(x1 - x2); 
+
+        
         
         % Set current prediction to be the mean of x1 and x2. 
-        x_pred = (x1 + x2)/2; 
-        objs(k) = nll_obj(A, D, M, d, n_sensors, n_anchors, x_pred); 
-        errs2(k) = norm(reshape(X, [d*n_sensors, 1]) - x_pred); 
-        errsinf(k) = norm(reshape(X, [d*n_sensors, 1]) - x_pred, inf); 
+        X_pred = (x1 + x2)/2; 
+        objs(k) = nll_obj(A, D, M, d, n_sensors, n_anchors, X_pred); 
+        errs2(k) = norm(reshape(X, [d*n_sensors, 1]) - reshape(X_pred, [d*n_sensors, 1])); 
+        errsinf(k) = norm(reshape(X, [d*n_sensors, 1]) - reshape(X_pred, [d*n_sensors, 1]), inf);
+        
+        % Convergence criteria
+        if k>1 && (abs(objs(k) - objs(k-1)) < 1e-5)
+            break
+        end
     end
 end
