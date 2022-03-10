@@ -27,7 +27,7 @@ function [e_2, e_inf] = evaluate_sensors(A, X, Z, n_sensors,...
      end
     hold on;
     % Plot the anchors
-    plot(A(1, :), A(2, :), 'd', 'linewidth', 2); 
+    plot(A(1, :), A(2, :), 'db', 'linewidth', 2); 
     % Plot the sensors
     plot(X(1, :), X(2, :), 'og', 'linewidth', 2);
     % Plot the predicted locations
