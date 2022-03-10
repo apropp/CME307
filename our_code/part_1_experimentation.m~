@@ -4,6 +4,7 @@ clear all; close all; clc;
 seeds = [771,355,618,1104,979,1026,193,2353,1230];
 anchor_numbers = [5, 5, 10];
 sensor_numbers = [10, 20, 20];
+radii = 0.1:0.1:2;
 
 d = 2; 
 radius = 2.5; % range within which distances are known
@@ -14,7 +15,7 @@ max_iters = 100;
 % D_{ij} is the distance between point i and point j, where i,j in [1, 5] 
 % is an anchor and i,j in [6, 15] is a sensor. 
 
-%% Vary sizes
+%% Vary sizes, seeds (Adrienne has already saved these figures to add to report appendix)
 for i=1:3
     for j=1:3
         t = j+(i-1)*3;
@@ -32,118 +33,38 @@ for i=1:3
         Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
         [Z_3, objs, errs] = ...
             nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-        subplot(1,3,1);
+        figure
+        subplot(1,3,1)
         evaluate_sensors(A, X, Z_1, n_sensors, n_anchors, t);
-        subplot(1,3,2);
+        subplot(1,3,2)
         evaluate_sensors(A, X, Z_2, n_sensors, n_anchors, t);
-        subplot(1,3,3);
+        subplot(1,3,3)
         evaluate_sensors(A, X, Z_3, n_sensors, n_anchors, t);
     end
 end
 
-%% Size 1
-n_anchors = 5; % known locations
-n_sensors = 10; % number of sensors
+%% Vary radii
+
+n_anchors = anchor_numbers(1);
+n_sensors = sensor_numbers(1);
+rng(seeds(1));
+E2_norms = zeros(3, length(radii));
+Inf_norms = zeros(3, length(radii));
+
 A = rand(2,n_anchors); % n_anchors random points in coordinate plane
 X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 D = squareform(pdist([A,X]'));
-M = D <= radius; 
 
-rng(s1);
-Z0 = rand(d*n_sensors, 1);
-Z_1a = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2a = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3a, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-figure;
-subplot(1,3,1);
-evaluate_sensors(A, X, Z_1a, n_sensors, n_anchors, 1);
-subplot(1,3,2);
-evaluate_sensors(A, X, Z_2a, n_sensors, n_anchors, 1);
-subplot(1,3,3);
-evaluate_sensors(A, X, Z_3a, n_sensors, n_anchors, 1);
-
-rng(s2);
-Z0 = rand(d*n_sensors, 1);
-Z_1b = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2b = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3b, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-figure;
-subplot(1,3,1);
-evaluate_sensors(A, X, Z_1b, n_sensors, n_anchors, 2);
-subplot(1,3,2);
-evaluate_sensors(A, X, Z_2b, n_sensors, n_anchors, 2);
-subplot(1,3,3);
-evaluate_sensors(A, X, Z_3b, n_sensors, n_anchors, 2);
-
-rng(s3);
-Z0 = rand(d*n_sensors, 1);
-Z_1c = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2c = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3c, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-figure;
-subplot(1,3,1);
-evaluate_sensors(A, X, Z_1c, n_sensors, n_anchors, 3);
-subplot(1,3,2);
-evaluate_sensors(A, X, Z_2c, n_sensors, n_anchors, 3);
-subplot(1,3,3);
-evaluate_sensors(A, X, Z_3c, n_sensors, n_anchors, 3);
-%% Size 2
-n_anchors = 5; % known locations
-n_sensors = 20; % number of sensors
-A = rand(2,n_anchors); % n_anchors random points in coordinate plane
-X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
-D = squareform(pdist([A,X]'));
-M = D <= radius; 
-
-rng(s4);
-Z0 = rand(d*n_sensors, 1);
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-
-rng(s5);
-Z0 = rand(d*n_sensors, 1);
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-
-rng(s6);
-Z0 = rand(d*n_sensors, 1);
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-
-%% Size 3
-n_anchors = 5; % known locations
-n_sensors = 10; % number of sensors
-A = rand(2,n_anchors); % n_anchors random points in coordinate plane
-X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
-D = squareform(pdist([A,X]'));
-M = D <= radius; 
-
-rng(s7);
-Z0 = rand(d*n_sensors, 1);
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-
-rng(s8);
-Z0 = rand(d*n_sensors, 1);
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
-
-rng(s9);
-Z0 = rand(d*n_sensors, 1);
-Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
-Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-[Z_3, objs, errs] = ...
-    nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
+for i=1:length(radii)
+    radius = radii(i);
+    M = D <= radius;
+    
+    Z0 = rand(d*n_sensors, 1);
+    Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
+    Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
+    [Z_3, objs, errs] = ...
+        nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
+    
+    e_2 = norm(X-Z); 
+    e_inf = norm(X-Z, inf); 
+end
