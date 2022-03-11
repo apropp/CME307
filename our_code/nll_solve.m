@@ -15,7 +15,7 @@
 % - objs: objective values as a function of k 
 % - errs2: 2-norm errors as a function of k 
 % - errsinf: inf-norm errors as a function of k 
-function [Z, objs, errs2, errsinf] = nll_solve(A, D, M, d, n_sensors, n_anchors, X, ...
+function [Z, objs, errs2, errsinf, k] = nll_solve(A, D, M, d, n_sensors, n_anchors, X, ...
     Z0, eps, max_iters)
     objs = zeros(max_iters, 1); 
     errs2 = zeros(max_iters, 1); 
