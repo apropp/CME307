@@ -1,4 +1,5 @@
 clear all; close all; clc; 
+% skewed noise - different objective function
 
 %% Initialization
 seeds = [771,355,618,1104,979,1026,193,2353,1230];
@@ -65,8 +66,12 @@ for i=1:nruns
     Z0 = rand(d*n_sensors, 1);
     Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
     Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
-    [Z_3, objs, errs] = ...
+    [Z_3, objs1, errs1] = ...
         nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z0, eps, max_iters);
+    [Z_4, objs2, errs2] = ...
+        nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z_1, eps, max_iters);
+    [Z_5, objs3, errs3] = ...
+        nll_solve(A, D, M, d, n_sensors, n_anchors, X, Z_2, eps, max_iters);
     
     E2_norms(1,i) = norm(X-Z_1);
     E2_norms(2,i) = norm(X-Z_2); 
@@ -96,11 +101,13 @@ var(Inf_norms(3,:))
 %% Vary radii
 n_anchors = anchor_numbers(1);
 n_sensors = sensor_numbers(1);
-rng(seeds(1));
+rng(seeds(2));
 
 E2_norms = zeros(3, length(radii)); % store errors
 Inf_norms = zeros(3, length(radii)); % store errors
 
+rng(seeds(2));
+Z0 = rand(d*n_sensors, 1);
 A = rand(2,n_anchors); % n_anchors random points in coordinate plane
 X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 D = squareform(pdist([A,X]'));
@@ -108,8 +115,7 @@ D = squareform(pdist([A,X]'));
 for i=1:length(radii)
     radius = radii(i);
     M = D <= radius;
-    
-    Z0 = rand(d*n_sensors, 1);
+
     Z_1 = socp_solve(A, D, M, d, n_sensors, n_anchors);
     Z_2 = sdp_solve(A, D, M, d, n_sensors, n_anchors);
     [Z_3, objs, errs] = ...
@@ -122,20 +128,42 @@ for i=1:length(radii)
     Inf_norms(2,i) = norm(X-Z_2, inf); 
     Inf_norms(3,i) = norm(X-Z_3, inf); 
 end
-figure
-plot(radii, E2_norms(1,:),'b', 'linewidth', 2)
-hold on
-plot(radii, E2_norms(2,:),'#0072BD', 'linewidth', 2)
-hold on
-plot(radii, E2_norms(3,:),'r', 'linewidth', 2)
-legend('SOCP', 'SDP', 'NLS')
-hold off
+
+ymax = max(max(max(Inf_norms)),max(max(E2_norms)))
 
 figure
-plot(radii, Inf_norms(1,:),'b', 'linewidth', 2)
+subplot(1,2,1)
+set(0,'defaultTextInterpreter','latex'); %trying to set the default
+set(0,'defaultAxesFontSize',20)
+set(groot, 'DefaultLegendInterpreter', 'latex')
+set(gcf,'color','w');
+set(groot, 'defaultAxesTickLabelInterpreter','latex'); 
+
+plot(radii, E2_norms(1,:),'Color',[0 0.4470 0.7410], 'linewidth', 2)
 hold on
-plot(radii, Inf_norms(2,:),'g', 'linewidth', 2)
+plot(radii, E2_norms(2,:),'Color',[0.8500 0.3250 0.0980], 'linewidth', 2)
 hold on
-plot(radii, Inf_norms(3,:),'r', 'linewidth', 2)
+plot(radii, E2_norms(3,:),'Color',[0.3010 0.7450 0.9330], 'linewidth', 2)
 legend('SOCP', 'SDP', 'NLS')
+xlabel('Radius')
+ylabel('2-Norm Error')
+ylim([0 ymax+1])
+hold off
+
+
+subplot(1,2,2)
+set(0,'defaultTextInterpreter','latex'); %trying to set the default
+set(0,'defaultAxesFontSize',20)
+set(groot, 'DefaultLegendInterpreter', 'latex')
+set(gcf,'color','w');
+set(groot, 'defaultAxesTickLabelInterpreter','latex');
+plot(radii, Inf_norms(1,:),'Color',[0 0.4470 0.7410], 'linewidth', 2)
+hold on
+plot(radii, Inf_norms(2,:),'Color',[0.8500 0.3250 0.0980], 'linewidth', 2)
+hold on
+plot(radii, Inf_norms(3,:),'Color',[0.3010 0.7450 0.9330], 'linewidth', 2)
+legend('SOCP', 'SDP', 'NLS')
+ylim([0 ymax+1])
+xlabel('Radius')
+ylabel('Inf-Norm Error')
 hold off
