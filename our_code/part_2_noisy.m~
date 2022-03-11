@@ -24,21 +24,21 @@ D_noisy = D + noise;
 
 %% Noisy SOCP & SDP
 
-Z_2_noise = noisy_socp_solve(A, D_noisy, M, d, n_sensors, n_anchors);
-Z_3_noise = noisy_sdp_solve(A, D_noisy, M, d, n_sensors, n_anchors);
+Z_SOCP_noise = noisy_socp_solve(A, D_noisy, M, d, n_sensors, n_anchors);
+Z_SDP_noise = noisy_sdp_solve(A, D_noisy, M, d, n_sensors, n_anchors);
 
 
 %% Noisy SOCP & SDP with NLS refinement
 eps = 5*1e-3;
 max_iters = 300; 
 
-Z0 = reshape(Z_2_noise, [d*n_sensors, 1]); 
-[Z_2_noise_ref, objs_2_noise_ref, errs_2_noise_ref, errsinf_2_noise_ref, k2] = ...
+Z0 = reshape(Z_SOCP_noise, [d*n_sensors, 1]); 
+[Z_SOCP_noise_ref, objs_2_noise_ref, errs_SOCP_noise_ref, errsinf_SOCP_noise_ref, k_SOCP] = ...
     nll_solve(A, D_noisy, M, d, n_sensors, ...
     n_anchors, X, Z0, eps, max_iters);
 
-Z0 = reshape(Z_3_noise, [d*n_sensors, 1]); 
-[Z_3_noise_ref, objs_3_noise_ref, errs_3_noise_ref, errsinf_3_noise_ref, k3] = ...
+Z0 = reshape(Z_SDP_noise, [d*n_sensors, 1]); 
+[Z_SDP_noise_ref, objs_SDP_noise_ref, errs_SDP_noise_ref, errsinf_SDP_noise_ref, k_SDP] = ...
     nll_solve(A, D_noisy, M, d, n_sensors, ...
     n_anchors, X, Z0, eps, max_iters);
 
@@ -50,31 +50,66 @@ set(0,'defaultAxesFontSize',20)
 set(groot, 'DefaultLegendInterpreter', 'latex')
 set(gcf,'color','w');
 set(groot, 'defaultAxesTickLabelInterpreter','latex');
-subplot(2,2,1)
-evaluate_sensors(A, X, Z_2_noise, n_sensors, n_anchors, 1);
+subplot(2,3,1)
+evaluate_sensors(A, X, Z_SOCP_noise, n_sensors, n_anchors, 1);
 ylim([0 1])
 xlim([0 1])
 title('(a) SOCP', 'FontSize', 22);
-subplot(2,2,2)
-evaluate_sensors(A, X, Z_3_noise, n_sensors, n_anchors, 1);
+subplot(2,3,2)
+evaluate_sensors(A, X, Z_SDP_noise, n_sensors, n_anchors, 1);
 ylim([0 1])
 xlim([0 1])
 xlabel('$x_1$')
 ylabel('$x_2$')
 title('(b) SDP', 'FontSize', 22);
-subplot(2,2,3)
-evaluate_sensors(A, X, Z_2_noise_ref, n_sensors, n_anchors, 1);
-ylim([0 1])
-xlim([0 1])
-title('(c) SOCP w NLS Refinement', 'FontSize', 22);
-subplot(2,2,4)
-evaluate_sensors(A, X, Z_3_noise_ref, n_sensors, n_anchors, 1);
+subplot(2,3,3)
+evaluate_sensors(A, X, Z_3_noise, n_sensors, n_anchors, 1);
 ylim([0 1])
 xlim([0 1])
 xlabel('$x_1$')
 ylabel('$x_2$')
-title('(d) SDP w NLS Refinement', 'FontSize', 22);
+title('(c) NLS', 'FontSize', 22);
+subplot(2,3,4)
+evaluate_sensors(A, X, Z_SOCP_noise_ref, n_sensors, n_anchors, 1);
+ylim([0 1])
+xlim([0 1])
+title('(d) SOCP w NLS Refinement', 'FontSize', 22);
+subplot(2,3,5)
+evaluate_sensors(A, X, Z_SDP_noise_ref, n_sensors, n_anchors, 1);
+ylim([0 1])
+xlim([0 1])
+xlabel('$x_1$')
+ylabel('$x_2$')
+title('(e) SDP w NLS Refinement', 'FontSize', 22);
 
-visualize_descent(objs_2_noise_ref, errs_2_noise_ref, errsinf_2_noise_ref, max_iters, 3)
-visualize_descent(objs_3_noise_ref, errs_3_noise_ref, errsinf_3_noise_ref, max_iters, 4)
+visualize_descent(objs_2_noise_ref, errs_2_noise_ref, errsinf_2_noise_ref, max_iters, k2, 3)
+visualize_descent(objs_3_noise_ref, errs_3_noise_ref, errsinf_3_noise_ref, max_iters, k3, 4)
 
+%% Vary noise level
+
+gammas = 0.01:0.01:0.25;
+E2_norms = zeros(2, length(gammas)); % store errors
+Inf_norms = zeros(2, length(gammas)); % store errors
+
+for i=1:length(gammas)
+    noise = normrnd(0, gamma, size(D)); 
+    D_noisy = D + noise; 
+    
+    Z_SOCP = noisy_socp_solve(A, D_noisy, M, d, n_sensors, n_anchors);
+    Z_SDP  = noisy_sdp_solve(A, D_noisy, M, d, n_sensors, n_anchors);
+
+    Z0_SOCP = reshape(Z_SOCP, [d*n_sensors, 1]); 
+    [Z_SOCP_NLS, objs_SOCP_NLS, errs_SOCP_NLS, errsinf_SOCP_NLS, k_SOCP_NLS] = ...
+        nll_solve(A, D_noisy, M, d, n_sensors, ...
+        n_anchors, X, Z0_SOCP, eps, max_iters);
+
+    Z0_SDP = reshape(Z_SDP, [d*n_sensors, 1]); 
+    [Z_SDP_NLS, objs_SDP_NLS, errs_SDP_NLS, errsinf_SDP_NLS, k_SDP_NLS] = ...
+        nll_solve(A, D_noisy, M, d, n_sensors, ...
+        n_anchors, X, Z0_SDP, eps, max_iters);
+    
+    E2_norms(1,i) = errs_SOCP_NLS;
+    Inf_norms(1,i) = errsinf_SOCP_NLS;
+    E2_norms(2,i) = errs_SDP_NLS;
+    Inf_norms(2,i) = errsinf_SDP_NLS;
+end
