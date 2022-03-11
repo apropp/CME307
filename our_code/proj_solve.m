@@ -29,7 +29,7 @@ function [Z, objs, errs2, errsinf] = proj_solve(A, D, M, d, n_sensors, n_anchors
         errs2(k) = norm(X - Z0(1:d, d+1:end)); 
         errsinf(k) = norm(X - Z0(1:d, d+1:end), inf); 
         % Convergence criteria
-        if k>1 && (abs(objs(k) - objs(k-1)) < 1e-5)
+        if k>1 && (abs(objs(k) - objs(k-1)) < 1e-8)
             break
         end
     end
