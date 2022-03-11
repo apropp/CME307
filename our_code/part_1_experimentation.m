@@ -52,8 +52,6 @@ nruns = 30;
 E2_norms = zeros(5, nruns); % store errors
 Inf_norms = zeros(5, nruns); % store errors
 
-
-
 for i=1:nruns
     % Generate random data each time
     A = rand(2,n_anchors); % n_anchors random points in coordinate plane
@@ -114,7 +112,6 @@ var(Inf_norms(5,:))
 %% Vary radii
 n_anchors = anchor_numbers(1);
 n_sensors = sensor_numbers(1);
-rng(seeds(2));
 
 E2_norms = zeros(3, length(radii)); % store errors
 Inf_norms = zeros(3, length(radii)); % store errors
