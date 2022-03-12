@@ -5,7 +5,7 @@
 % - x0, y0: center position of circle
 % Output: 
 % - data: your data points
-function [cir_data] = circle_points(num,R,x0,y0)
+function [cir_data] = circle_points_outside(num,R,x0,y0)
 
     angle = 2*pi*rand(num,1);
     radius = 0.9 * R + 0.2 * R * rand(num,1); % generate points around perimeter
