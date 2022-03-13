@@ -6,7 +6,7 @@ anchor_numbers = [5, 5, 10];
 sensor_numbers = [10, 20, 20];
 radii = 0.1:0.1:2;
 
-rng(355); % set seed
+rng(979); % set seed
 d = 2; 
 n_anchors = 5; % known locations
 n_sensors = 10; % number of sensors
@@ -21,8 +21,8 @@ X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 D = squareform(pdist([A,X]'));
 M = D <= radius; 
 
-eps = 10;
-max_iters = 250; 
+eps = 1;
+max_iters = 100; 
 
 x1 = rand(d, n_sensors); 
 x2 = rand(d, n_sensors); 
@@ -32,7 +32,7 @@ y = rand(d, n_sensors);
     n_sensors, n_anchors, X, max_iters, eps, x1, x2, y)
 
 Z = (x1+x2)/2
-visualize_descent(objs, errs2, errsinf, max_iters, 1)
+visualize_descent(objs, errs2, errsinf, max_iters,max_iters, 1)
 evaluate_sensors(A, X, Z, n_sensors, n_anchors, 2)
 
 % % D_{ij} is the distance between point i and point j, where i,j in [1, 5] 
