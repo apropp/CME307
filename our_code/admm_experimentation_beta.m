@@ -77,15 +77,17 @@ n_anchors = 5; % known locations
 n_sensors = 10; % number of sensors
 radius = 0.5; % range within which distances are known
 noise_factor = 0; % noise in distance estimation
-esp = 10;
-max_iters = 250;
-rng(2022);
+eps = 1;
+max_iters = 500;
+rng(355);
 
-nruns = 3;
+nruns = 15; % 15
 E2_norms = zeros(1, nruns); % store errors
 Inf_norms = zeros(1, nruns); % store errors
+fig_count = 1;
 
 for i=1:nruns
+    disp(i)
     A = rand(2,n_anchors); % n_anchors random points in coordinate plane
     X = rand(2,n_sensors); % n_sensors random points in the coordinate plane
 
@@ -98,12 +100,16 @@ for i=1:nruns
     x2_0 = rand(d, n_sensors); 
     y_0 = rand(d, n_sensors); 
 
-    [x1, x2, y, objs, errs2, errsinf, finalobj, final2, finalinf] = admm_solve(A, D, M, d, ...
+    [x1, x2, y, objs, errs2, errsinf, finalobj, final2, finalinf] = admm_solve_rando(A, D, M, d, ...
         n_sensors, n_anchors, X, max_iters, eps, x1_0, x2_0, y_0);
     Z = (x1+x2)/2;
 
     E2_norms(1,i) = final2;
     Inf_norms(1,i) = finalinf;
+
+    visualize_descent(objs, errs2, errsinf, max_iters,max_iters,fig_count)
+    evaluate_sensors(A, X, Z, n_sensors, n_anchors, fig_count+1)
+    fig_count = fig_count+2;
     
 end
 

@@ -83,10 +83,10 @@ function [x1, x2, y, objs, errs2, errsinf, finalobj, final2, finalinf] = admm_so
         errsinf(k) = norm(reshape(X, [d*n_sensors, 1]) - reshape(X_pred, [d*n_sensors, 1]), inf);
         
         % Convergence criteria
-        if k>1 && (abs(objs(k) - objs(k-1)) < 1e-5)
+        if k>1 && (abs(objs(k) - objs(k-1)) < 1e-8)
             finalobj = objs(k);
             final2 = errs2(k);
-            finalinf = errs2(k);
+            finalinf = errsinf(k);
             break
         end
     end
